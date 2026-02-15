@@ -1,0 +1,175 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000000;
+    color: #c9d1d9;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.container {
+    display: flex;
+    max-width: 1300px;
+    margin: 40px auto;
+    gap: 60px;
+    padding: 0 40px;
+}
+
+/* LEFT CONTENT */
+
+.main-content {
+    flex: 2;
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.logo span {
+    color: #3fb950;
+}
+
+.logo .lang {
+    color: #ffffff;
+}
+
+/* CARD */
+
+.card {
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #000000;
+    transition: 0.2s ease;
+}
+
+.card:hover {
+    border-color: #3fb950;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card h3 {
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.card p {
+    font-size: 14px;
+    color: #8b949e;
+    margin-bottom: 10px;
+}
+
+.meta {
+    font-size: 13px;
+    color: #8b949e;
+}
+
+.meta span {
+    margin-left: 15px;
+}
+
+/* ISSUE BUTTON */
+
+.card button {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.card button:hover {
+    border-color: #58a6ff;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    flex: 1;
+}
+
+.sidebar h2 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #8b949e;
+    letter-spacing: 1px;
+}
+
+.about {
+    margin-bottom: 40px;
+}
+
+.about p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #8b949e;
+}
+
+.browse {
+    margin-bottom: 30px;
+}
+
+/* TAGS */
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tags span {
+    border: 1px solid #30363d;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tags span:hover {
+    border-color: #58a6ff;
+}
+
+.tags .active {
+    background-color: #0f5132;
+    border-color: #3fb950;
+    color: #3fb950;
+}
+
+/* ADD BUTTON */
+
+.add-project {
+    width: 100%;
+    background-color: #ffffff;
+    border: none;
+    padding: 10px;
+    padding-bottom:10px;
+    color: #000000;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: 0.2s;
+}
+
+.add-project:hover {
+    background-color: #e6e6e6;
+}
+
+.footer {
+    font-size: 13px;
+    color: #8b949e;
+}
