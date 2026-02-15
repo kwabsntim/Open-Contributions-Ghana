@@ -62,3 +62,6 @@ func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Proj
 
 	return project, nil
 }
+func (s *Service) GetAllProjects(ctx context.Context) ([]*Project, error) {
+	return s.repo.GetAllProjects(ctx)
+}
