@@ -243,7 +243,6 @@ body {
 .modal {
     background-color: #0d1117;
     border: 1px solid #30363d;
-    border-radius: 6px;
     width: 90%;
     max-width: 600px;
     max-height: 90vh;
