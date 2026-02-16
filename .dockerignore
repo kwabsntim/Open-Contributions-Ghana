@@ -1,0 +1,48 @@
+# Docker ignore file for Open Source Ghana
+
+# Git files
+.git
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Local database
+*.db
+my.db
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+CONTRIBUTING.md
+DEPLOYMENT.md
+LICENSE
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
