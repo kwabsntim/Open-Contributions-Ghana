@@ -8,6 +8,8 @@ body {
     background-color: #000000;
     color: #c9d1d9;
     font-family: 'Quicksand', sans-serif;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
@@ -16,18 +18,53 @@ body {
     margin: 40px auto;
     gap: 60px;
     padding: 0 40px;
+    height: calc(100vh - 80px);
+    overflow: hidden;
 }
 
 /* LEFT CONTENT */
 
 .main-content {
     flex: 2;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .logo {
     font-size: 32px;
     font-weight: 600;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333333;
+    background-color: #000000;
+    flex-shrink: 0;
+}
+
+.cards-wrapper {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 10px;
+    padding-bottom: 40px;
+    scroll-behavior: smooth;
+}
+
+.cards-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cards-wrapper::-webkit-scrollbar-track {
+    background: #0d1117;
+    border-radius: 4px;
+}
+
+.cards-wrapper::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+
+.cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
 
 .logo span {
@@ -42,7 +79,6 @@ body {
 
 .card {
     border: 1px solid #30363d;
-    border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
     background: #000000;
@@ -87,7 +123,7 @@ body {
     border: 1px solid #30363d;
     color: #c9d1d9;
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: 2px;
     cursor: pointer;
     font-size: 13px;
 }
@@ -100,6 +136,10 @@ body {
 
 .sidebar {
     flex: 1;
+    padding-left: 40px;
+    border-left: 1px solid #333333;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .sidebar h2 {
@@ -134,7 +174,6 @@ body {
 .tags span {
     border: 1px solid #30363d;
     padding: 6px 12px;
-    border-radius: 6px;
     font-size: 13px;
     cursor: pointer;
     transition: 0.2s;
@@ -153,11 +192,11 @@ body {
 /* ADD BUTTON */
 
 .add-project {
-    width: 100%;
+    width: 85%;
     background-color: #ffffff;
     border: none;
-    padding: 10px;
-    padding-bottom:10px;
+    padding: 12px;
+    padding-bottom: 10px;
     color: #000000;
     font-weight: bold;
     cursor: pointer;
