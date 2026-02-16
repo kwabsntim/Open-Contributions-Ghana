@@ -45,7 +45,7 @@
                 <div class="tags">
                     <span>Python × 101</span>
                     <span>TypeScript × 77</span>
-                    <span class="active">Go × 73</span>
+                    <span>Go × 73</span>
                     <span>C++ × 48</span>
                     <span>Java × 47</span>
                     <span>JavaScript × 45</span>
@@ -70,6 +70,32 @@
 
         </aside>
 
+    </div>
+
+    <!-- MODAL FOR ADDING PROJECT -->
+    <div class="modal-overlay" id="addProjectModal">
+        <div class="modal">
+            <h2>Add Your Project</h2>
+            <p style="color: #8b949e; font-size: 14px; margin-bottom: 16px;">Enter the GitHub repository URL to add your project to the showcase.</p>
+            
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="githubUrlInput" 
+                placeholder="https://github.com/username/repository"
+            />
+            
+            <div class="modal-error" id="modalError"></div>
+            
+            <div class="modal-preview" id="modalPreview">
+                <!-- Preview will be loaded here -->
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-button secondary" id="cancelButton">Cancel</button>
+                <button class="modal-button primary" id="submitButton" disabled>Add Project</button>
+            </div>
+        </div>
     </div>
 
 </body>
