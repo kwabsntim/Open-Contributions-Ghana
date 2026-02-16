@@ -1,4 +1,4 @@
-# Contributing to Contributions Ghana
+# Contributing to Open Contributions Ghana
 
 Thanks for your interest in contributing.
 
