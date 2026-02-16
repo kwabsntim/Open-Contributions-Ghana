@@ -1,7 +1,12 @@
+// API Configuration - automatically uses production or local URL
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8080' 
+    : window.location.origin;
+
 // Fetch and display projects from the API
 async function loadProjects() {
     try {
-        const response = await fetch('http://localhost:8080/api/projects');
+        const response = await fetch(`${API_URL}/api/projects`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -217,7 +222,7 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.textContent = 'Adding...';
     
     try {
-        const response = await fetch('http://localhost:8080/api/projects', {
+        const response = await fetch(`${API_URL}/api/projects`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -9,12 +9,16 @@ import (
 )
 
 type Service struct {
-	repo RepoInterface
+	repo        RepoInterface
+	githubToken string
 }
 
 func NewService(repo RepoInterface) ProjectService {
+	// Load GitHub token from environment if available
+	config := LoadConfig()
 	return &Service{
-		repo: repo,
+		repo:        repo,
+		githubToken: config.GitHubToken,
 	}
 }
 func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Project, error) {
@@ -26,6 +30,11 @@ func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Proj
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	// Add GitHub token if available for higher rate limits
+	if s.githubToken != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.githubToken))
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

@@ -5,23 +5,35 @@ import (
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
-func InitDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./my.db")
-	if err != nil {
-		return nil, err
-	}
+func InitDB(databaseURL string, useLocal bool) (*sql.DB, error) {
+	var db *sql.DB
+	var err error
 
-	fmt.Println("Connected to SQLite")
+	if useLocal {
+		// Use local SQLite for development
+		db, err = sql.Open("sqlite3", "./my.db")
+		if err != nil {
+			return nil, fmt.Errorf("failed to open local database: %w", err)
+		}
+		fmt.Println("Connected to local SQLite database")
+	} else {
+		// Use Turso for production
+		db, err = sql.Open("libsql", databaseURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open Turso database: %w", err)
+		}
+		fmt.Println("Connected to Turso database")
+	}
 
 	// Test connection
-	var version string
-	if err := db.QueryRow("SELECT sqlite_version()").Scan(&version); err != nil {
-		return nil, err
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	fmt.Println("SQLite version:", version)
+	fmt.Println("Database connection verified")
 
 	// Create tables
 	if err := CreateTables(db); err != nil {

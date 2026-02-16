@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -24,8 +26,21 @@ func enableCORS(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	// Initialize database
-	db, err := internal.InitDB()
+	// Load configuration from environment variables
+	config := internal.LoadConfig()
+
+	// Initialize database (local SQLite or Turso)
+	var db *sql.DB
+	var err error
+
+	if config.UseLocalDB {
+		db, err = internal.InitDB("", true)
+		log.Println("Using local SQLite database for development")
+	} else {
+		db, err = internal.InitDB(config.GetDatabaseURL(), false)
+		log.Printf("Using Turso database: %s", config.TursoDatabaseURL)
+	}
+
 	if err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
 	}
@@ -38,7 +53,11 @@ func main() {
 	// Setup routes
 	mux := http.NewServeMux()
 
-	// GET /api/projects - Get all projects
+	// Serve static files from web directory
+	fs := http.FileServer(http.Dir("./web"))
+	mux.Handle("/", fs)
+
+	// API endpoints
 	mux.HandleFunc("/api/projects", enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			service.GetAllProjectsHandler(w, r)
@@ -50,8 +69,8 @@ func main() {
 	}))
 
 	// Start server
-	port := ":8080"
-	log.Printf("Server starting on %s", port)
+	port := fmt.Sprintf(":%s", config.Port)
+	log.Printf("Server starting on port %s", config.Port)
 
 	if err := http.ListenAndServe(port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
