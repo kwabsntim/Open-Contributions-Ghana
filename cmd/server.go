@@ -59,11 +59,12 @@ func main() {
 
 	// API endpoints
 	mux.HandleFunc("/api/projects", enableCORS(func(w http.ResponseWriter, r *http.Request) {
+		// OPTIONS is already handled by CORS middleware
 		if r.Method == http.MethodGet {
 			service.GetAllProjectsHandler(w, r)
 		} else if r.Method == http.MethodPost {
 			service.AddProjectHandler(w, r)
-		} else {
+		} else if r.Method != http.MethodOptions {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	}))

@@ -51,6 +51,9 @@ func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Proj
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	// Debug: Log the repo data
+	fmt.Printf("Fetched repo: Name=%s, Owner=%s, Stars=%d\n", repo.Name, repo.Owner.Login, repo.StargazersCount)
+
 	// Map GitHub Repo to Project model
 	project := &Project{
 		Name:        repo.Name,
@@ -63,6 +66,9 @@ func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Proj
 		Category:    "", // TODO: Add logic to determine category
 		CreatedAt:   time.Now(),
 	}
+
+	// Debug: Log the project before insert
+	fmt.Printf("Inserting project: Name=%s, Owner=%s, URL=%s\n", project.Name, project.OwnerName, project.GithubURL)
 
 	// Save to database
 	if err := s.repo.InsertProject(ctx, project); err != nil {

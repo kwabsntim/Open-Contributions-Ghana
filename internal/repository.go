@@ -19,7 +19,7 @@ func NewRepository(db *sql.DB) RepoInterface {
 func (r Repository) InsertProject(ctx context.Context, project *Project) error {
 	query := `
         INSERT INTO projects (name, description, github_url, owner_name, owner_avatar, language, stars, category, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id
     `
 

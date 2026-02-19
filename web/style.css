@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #000000;
+    background-color: #0D1117;
     color: #c9d1d9;
     font-family: 'Quicksand', sans-serif;
     height: 100vh;
@@ -37,7 +37,7 @@ body {
     margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid #333333;
-    background-color: #000000;
+    background-color: #0D1117;
     flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@ body {
     border: 1px solid #30363d;
     padding: 20px;
     margin-bottom: 20px;
-    background: #000000;
+    background: #0D1117;
     transition: 0.2s ease;
     cursor: pointer;
 }
