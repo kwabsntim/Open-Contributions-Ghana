@@ -90,7 +90,7 @@ body {
     }
     /* push content down so fixed nav doesn't cover it */
     .container {
-        padding-top: 72px;
+        padding-top: 96px; /* more breathing room to avoid overlap on devices */
     }
     /* let whole page scroll; disable inner scrolling on cards-wrapper */
     .cards-wrapper {
@@ -295,6 +295,16 @@ body {
 
 .about {
     margin-bottom: 40px;
+}
+
+.about h2 {
+    color: #c9d1d9 !important; /* ensure heading is visible against dark background */
+    font-size: 14px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
 }
 
 .about p {
