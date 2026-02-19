@@ -261,6 +261,13 @@ urlInput.addEventListener('input', async () => {
     }
 });
 
+// Prevent Enter from submitting the modal accidentally when typing/pasting URL
+urlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+    }
+});
+
 // Submit project
 submitBtn.addEventListener('click', async () => {
     if (!previewedProject) {

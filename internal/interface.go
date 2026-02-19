@@ -9,4 +9,5 @@ type ProjectService interface {
 type RepoInterface interface {
 	InsertProject(ctx context.Context, project *Project) error
 	GetAllProjects(ctx context.Context) ([]*Project, error)
+	GetProjectByGithubURL(ctx context.Context, githubURL string) (*Project, error)
 }

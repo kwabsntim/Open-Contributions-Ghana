@@ -119,3 +119,35 @@ func (r Repository) GetAllProjects(ctx context.Context) ([]*Project, error) {
 
 	return projects, nil
 }
+
+// GetProjectByGithubURL returns a project that matches the given github_url, or nil if not found.
+func (r Repository) GetProjectByGithubURL(ctx context.Context, githubURL string) (*Project, error) {
+	query := `
+		SELECT id, name, description, github_url, owner_name, owner_avatar, language, stars, category, created_at
+		FROM projects
+		WHERE github_url = ?
+		LIMIT 1
+	`
+
+	row := r.Db.QueryRowContext(ctx, query, githubURL)
+	var p Project
+	err := row.Scan(
+		&p.ID,
+		&p.Name,
+		&p.Description,
+		&p.GithubURL,
+		&p.OwnerName,
+		&p.OwnerAvatar,
+		&p.Language,
+		&p.Stars,
+		&p.Category,
+		&p.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to query project by github_url: %w", err)
+	}
+	return &p, nil
+}

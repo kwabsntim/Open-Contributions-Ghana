@@ -66,6 +66,14 @@ func (s *Service) AddProjectHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("AddProjectHandler: headers: User-Agent=%s, Content-Type=%s", r.Header.Get("User-Agent"), r.Header.Get("Content-Type"))
 	log.Printf("AddProjectHandler: raw body: %s", string(bodyBytes))
 
+	// Reject excessively large payloads
+	const maxBodySize = 100 * 1024 // 100 KB
+	if len(bodyBytes) > maxBodySize {
+		log.Printf("AddProjectHandler: request body too large: %d bytes", len(bodyBytes))
+		http.Error(w, "request body too large", http.StatusBadRequest)
+		return
+	}
+
 	var req struct {
 		GithubURL   string `json:"github_url"`
 		Name        string `json:"name,omitempty"`
@@ -97,17 +105,65 @@ func (s *Service) AddProjectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Helper to truncate long strings
+	truncate := func(s string, n int) string {
+		if len(s) <= n {
+			return s
+		}
+		return s[:n]
+	}
+
 	// If the client provided full repo metadata in the request (from preview), use it and avoid calling GitHub again.
 	if req.Name != "" && req.OwnerName != "" {
+		// Basic validation and sanitization
+		name := strings.TrimSpace(req.Name)
+		ownerName := strings.TrimSpace(req.OwnerName)
+		if name == "" || ownerName == "" {
+			http.Error(w, "name and owner_name must be provided", http.StatusBadRequest)
+			return
+		}
+
+		// Cap lengths
+		name = truncate(name, 200)
+		ownerName = truncate(ownerName, 200)
+		description := truncate(strings.TrimSpace(req.Description), 2000)
+		ownerAvatar := strings.TrimSpace(req.OwnerAvatar)
+		if ownerAvatar != "" && !strings.HasPrefix(ownerAvatar, "https://") {
+			// only allow https avatar URLs; drop otherwise
+			ownerAvatar = ""
+		}
+		language := truncate(strings.TrimSpace(req.Language), 100)
+		stars := req.Stars
+		if stars < 0 {
+			stars = 0
+		}
+
+		// Duplicate check by github_url
+		existing, err := s.repo.GetProjectByGithubURL(r.Context(), req.GithubURL)
+		if err != nil {
+			log.Printf("AddProjectHandler duplicate check error: %v", err)
+			http.Error(w, fmt.Sprintf("failed to check existing project: %v", err), http.StatusInternalServerError)
+			return
+		}
+		if existing != nil {
+			// Idempotent: return existing project
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			if err := json.NewEncoder(w).Encode(existing); err != nil {
+				http.Error(w, fmt.Sprintf("failed to encode response: %v", err), http.StatusInternalServerError)
+			}
+			return
+		}
+
 		// Build project from provided fields
 		proj := &Project{
-			Name:        req.Name,
-			Description: req.Description,
+			Name:        name,
+			Description: description,
 			GithubURL:   req.GithubURL,
-			OwnerName:   req.OwnerName,
-			OwnerAvatar: req.OwnerAvatar,
-			Language:    req.Language,
-			Stars:       req.Stars,
+			OwnerName:   ownerName,
+			OwnerAvatar: ownerAvatar,
+			Language:    language,
+			Stars:       stars,
 			Category:    "",
 			CreatedAt:   time.Now(),
 		}
