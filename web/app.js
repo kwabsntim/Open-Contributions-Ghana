@@ -1,10 +1,36 @@
-// API Configuration - automatically uses production or local URL
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:8080' 
-    : 'https://open-contributions-ghana.onrender.com';
+// API Configuration - toggle between local and production
+const USE_PRODUCTION = false // Set to false for local development
+
+const API_URL = USE_PRODUCTION 
+    ? 'https://open-contributions-ghana.onrender.com'
+    : 'http://localhost:8080';
+
+console.log('Using API:', API_URL);
+
+// Skeleton loading for cards
+function showSkeletonCards(count = 6) {
+    const cardsWrapper = document.querySelector('.cards-wrapper');
+    cardsWrapper.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'card skeleton-card';
+        skeleton.innerHTML = `
+            <div class="card-header">
+                <div class="owner-avatar skeleton-avatar"></div>
+                <div class="card-content">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-desc"></div>
+                    <div class="skeleton-meta"></div>
+                </div>
+            </div>
+        `;
+        cardsWrapper.appendChild(skeleton);
+    }
+}
 
 // Fetch and display projects from the API
 async function loadProjects() {
+    showSkeletonCards(); // Show skeletons while loading
     try {
         const response = await fetch(`${API_URL}/api/projects`);
         
@@ -55,7 +81,8 @@ function createProjectCard(project) {
     
     card.innerHTML = `
         <div class="card-header">
-            <div>
+            <img src="${project.owner_avatar}" alt="${project.owner_name}" class="owner-avatar" />
+            <div class="card-content">
                 <h3>
                     <a href="${project.github_url}" target="_blank" rel="noopener noreferrer">
                         ${project.owner_name} / ${project.name}
