@@ -3,6 +3,8 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -32,6 +34,7 @@ func parseGitHubURL(url string) (owner, repo string, err error) {
 func (s *Service) GetAllProjectsHandler(w http.ResponseWriter, r *http.Request) {
 	projects, err := s.GetAllProjects(r.Context())
 	if err != nil {
+		log.Printf("GetAllProjectsHandler error: %v", err)
 		http.Error(w, fmt.Sprintf("failed to get projects: %v", err), http.StatusInternalServerError)
 		return
 	}
@@ -50,17 +53,30 @@ func (s *Service) AddProjectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse request body
+	// Read raw body for logging and parse JSON
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("AddProjectHandler failed to read body: %v", err)
+		http.Error(w, fmt.Sprintf("failed to read request body: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Log a concise representation of the incoming request for debugging
+	log.Printf("AddProjectHandler: headers: User-Agent=%s, Content-Type=%s", r.Header.Get("User-Agent"), r.Header.Get("Content-Type"))
+	log.Printf("AddProjectHandler: raw body: %s", string(bodyBytes))
+
 	var req struct {
 		GithubURL string `json:"github_url"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.Unmarshal(bodyBytes, &req); err != nil {
+		log.Printf("AddProjectHandler invalid body JSON: %v", err)
 		http.Error(w, fmt.Sprintf("invalid request body: %v", err), http.StatusBadRequest)
 		return
 	}
 
 	if req.GithubURL == "" {
+		log.Printf("AddProjectHandler missing github_url in request")
 		http.Error(w, "github_url is required", http.StatusBadRequest)
 		return
 	}
@@ -68,6 +84,7 @@ func (s *Service) AddProjectHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract owner and repo name from GitHub URL
 	owner, repoName, err := parseGitHubURL(req.GithubURL)
 	if err != nil {
+		log.Printf("AddProjectHandler invalid GitHub URL: %v", err)
 		http.Error(w, fmt.Sprintf("invalid GitHub URL: %v", err), http.StatusBadRequest)
 		return
 	}
@@ -75,6 +92,7 @@ func (s *Service) AddProjectHandler(w http.ResponseWriter, r *http.Request) {
 	// Fetch and save project
 	project, err := s.GetProject(r.Context(), owner, repoName)
 	if err != nil {
+		log.Printf("AddProjectHandler failed to add project: %v", err)
 		http.Error(w, fmt.Sprintf("failed to add project: %v", err), http.StatusInternalServerError)
 		return
 	}

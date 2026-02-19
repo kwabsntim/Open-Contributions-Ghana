@@ -256,6 +256,9 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.textContent = 'Adding...';
     
     try {
+        // Debug: log payload being sent
+        console.log('Submitting project payload:', previewedProject);
+
         const response = await fetchWithFallback('/api/projects', {
             method: 'POST',
             headers: {
@@ -266,6 +269,7 @@ submitBtn.addEventListener('click', async () => {
 
         if (!response.ok) {
             const text = await response.text().catch(() => null);
+            console.error('Add project response not OK:', { status: response.status, headers: Object.fromEntries(response.headers), bodyText: text });
             throw new Error(text || `HTTP error! status: ${response.status}`);
         }
 

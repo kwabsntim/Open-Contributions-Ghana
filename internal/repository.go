@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 )
 
 type Repository struct {
@@ -23,6 +24,7 @@ func (r Repository) InsertProject(ctx context.Context, project *Project) error {
         RETURNING id
     `
 
+	// First, try INSERT ... RETURNING id (works with SQLite newer versions and some SQL engines)
 	err := r.Db.QueryRowContext(
 		ctx,
 		query,
@@ -37,11 +39,44 @@ func (r Repository) InsertProject(ctx context.Context, project *Project) error {
 		project.CreatedAt,
 	).Scan(&project.ID)
 
-	if err != nil {
-		return fmt.Errorf("failed to insert project: %w", err)
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	// Log the initial error and attempt a fallback INSERT without RETURNING.
+	log.Printf("InsertProject: RETURNING insert failed, attempting Exec fallback: %v", err)
+
+	execQuery := `
+		INSERT INTO projects (name, description, github_url, owner_name, owner_avatar, language, stars, category, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+
+	res, execErr := r.Db.ExecContext(
+		ctx,
+		execQuery,
+		project.Name,
+		project.Description,
+		project.GithubURL,
+		project.OwnerName,
+		project.OwnerAvatar,
+		project.Language,
+		project.Stars,
+		project.Category,
+		project.CreatedAt,
+	)
+
+	if execErr == nil {
+		if id64, idErr := res.LastInsertId(); idErr == nil {
+			project.ID = int(id64)
+			return nil
+		}
+		// If LastInsertId not supported, return success without ID set.
+		return nil
+	}
+
+	// Both attempts failed
+	log.Printf("InsertProject Exec fallback error: %v", execErr)
+	return fmt.Errorf("failed to insert project (returning: %v, exec: %v)", err, execErr)
 }
 
 func (r Repository) GetAllProjects(ctx context.Context) ([]*Project, error) {
