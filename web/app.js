@@ -1,11 +1,29 @@
 // API Configuration - toggle between local and production
+// Set USE_PRODUCTION=true for deployed frontend pointing at the production API.
 const USE_PRODUCTION = false // Set to false for local development
 
-const API_URL = USE_PRODUCTION 
-    ? 'https://open-contributions-ghana.onrender.com'
+// Known production API host (your Render deployment)
+const PROD_API = 'https://open-contributions-ghana.onrender.com';
+
+// If the frontend is opened from a non-localhost host (e.g., Vercel, Netlify, a phone),
+// prefer the production API so the browser can reach the backend.
+const API_URL = (USE_PRODUCTION || (window.location && window.location.hostname !== 'localhost'))
+    ? PROD_API
     : 'http://localhost:8080';
 
 console.log('Using API:', API_URL);
+
+// Diagnostics banner to help debug fetch issues on remote devices
+function ensureDiagnostics() {
+    if (!document.querySelector('#api-diagnostics')) {
+        const d = document.createElement('div');
+        d.id = 'api-diagnostics';
+        d.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;background:#0b1220;color:#c9d1d9;padding:8px 12px;border:1px solid #30363d;border-radius:6px;z-index:12000;font-size:13px;max-height:40vh;overflow:auto;';
+        d.innerHTML = `<strong>API:</strong> <span id="api-url">${API_URL}</span> <br/><span id="api-last-error"></span>`;
+        document.body.appendChild(d);
+    }
+}
+ensureDiagnostics();
 
 // Skeleton loading for cards
 function showSkeletonCards(count = 6) {
@@ -32,16 +50,18 @@ function showSkeletonCards(count = 6) {
 async function loadProjects() {
     showSkeletonCards(); // Show skeletons while loading
     try {
-        const response = await fetch(`${API_URL}/api/projects`);
-        
+        const response = await fetchWithFallback('/api/projects');
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const projects = await response.json();
         displayProjects(projects);
     } catch (error) {
         console.error('Error fetching projects:', error);
+        const errEl = document.getElementById('api-last-error');
+        if (errEl) errEl.textContent = 'Error fetching projects: ' + (error.message || error);
         displayError();
     }
 }
@@ -249,7 +269,7 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.textContent = 'Adding...';
     
     try {
-        const response = await fetch(`${API_URL}/api/projects`, {
+        const response = await fetchWithFallback('/api/projects', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -273,3 +293,50 @@ submitBtn.addEventListener('click', async () => {
         submitBtn.textContent = 'Add Project';
     }
 });
+
+// A helper that tries the configured API_URL, then some fallbacks useful for mobile/local testing
+async function fetchWithFallback(path, options = undefined) {
+    const tried = [];
+
+    // Normalize path
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+    // Candidate 1: configured API_URL
+    const primary = `${API_URL}${cleanPath}`;
+    tried.push(primary);
+    try {
+        console.log('Trying primary API URL:', primary);
+        return await fetch(primary, options);
+    } catch (err) {
+        console.warn('Primary API fetch failed:', err);
+    }
+
+    // Candidate 2: if API_URL references localhost but the page isn't running on localhost,
+    // replace localhost with the current hostname (useful when testing from a phone on the same LAN)
+    try {
+        const urlObj = new URL(API_URL);
+        if (urlObj.hostname === 'localhost' && window.location.hostname && window.location.hostname !== 'localhost') {
+            const altHost = window.location.hostname;
+            const alt = `${urlObj.protocol}//${altHost}${urlObj.port ? `:${urlObj.port}` : ''}${cleanPath}`;
+            tried.push(alt);
+            console.log('Trying fallback API URL with hostname replacement:', alt);
+            return await fetch(alt, options);
+        }
+    } catch (e) {
+        // ignore URL parsing errors
+    }
+
+    // Candidate 3: relative path (if backend is served from same origin)
+    try {
+        const rel = cleanPath;
+        tried.push(rel);
+        console.log('Trying relative API path:', rel);
+        return await fetch(rel, options);
+    } catch (err) {
+        console.warn('Relative fetch failed:', err);
+    }
+
+    // If we got here, throw an aggregated error
+    const err = new Error('All fetch attempts failed: ' + tried.join(', '));
+    throw err;
+}
