@@ -1,6 +1,6 @@
 // API Configuration - toggle between local and production
 // Set USE_PRODUCTION=true for deployed frontend pointing at the production API.
-const USE_PRODUCTION = false // Set to false for local development
+const USE_PRODUCTION = true // Set to false for local development
 
 // Known production API host (your Render deployment)
 const PROD_API = 'https://open-contributions-ghana.onrender.com';
@@ -12,18 +12,6 @@ const API_URL = (USE_PRODUCTION || (window.location && window.location.hostname 
     : 'http://localhost:8080';
 
 console.log('Using API:', API_URL);
-
-// Diagnostics banner to help debug fetch issues on remote devices
-function ensureDiagnostics() {
-    if (!document.querySelector('#api-diagnostics')) {
-        const d = document.createElement('div');
-        d.id = 'api-diagnostics';
-        d.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;background:#0b1220;color:#c9d1d9;padding:8px 12px;border:1px solid #30363d;border-radius:6px;z-index:12000;font-size:13px;max-height:40vh;overflow:auto;';
-        d.innerHTML = `<strong>API:</strong> <span id="api-url">${API_URL}</span> <br/><span id="api-last-error"></span>`;
-        document.body.appendChild(d);
-    }
-}
-ensureDiagnostics();
 
 // Skeleton loading for cards
 function showSkeletonCards(count = 6) {
@@ -60,8 +48,6 @@ async function loadProjects() {
         displayProjects(projects);
     } catch (error) {
         console.error('Error fetching projects:', error);
-        const errEl = document.getElementById('api-last-error');
-        if (errEl) errEl.textContent = 'Error fetching projects: ' + (error.message || error);
         displayError();
     }
 }
