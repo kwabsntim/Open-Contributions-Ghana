@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -43,7 +44,9 @@ func (s *Service) GetProject(ctx context.Context, owner, reponame string) (*Proj
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("repo not found: status %d", resp.StatusCode)
+		// Read response body to surface GitHub error messages (e.g., rate limit)
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("repo not found: status %d, body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var repo Repo

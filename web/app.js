@@ -227,9 +227,16 @@ urlInput.addEventListener('input', async () => {
         
         const repoData = await response.json();
         
-        // Store previewed project (we only need github_url for submission)
+        // Store previewed project with full metadata so the server can insert directly
         previewedProject = {
-            github_url: url
+            github_url: url,
+            name: repoData.name,
+            owner_name: repoData.owner.login,
+            owner_avatar: repoData.owner.avatar_url,
+            description: repoData.description,
+            language: repoData.language,
+            stars: repoData.stargazers_count,
+            created_at: repoData.created_at
         };
 
         // Show preview (include owner avatar so the preview image loads)
