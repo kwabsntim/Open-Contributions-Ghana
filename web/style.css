@@ -22,6 +22,84 @@ body {
     overflow: hidden;
 }
 
+/* mobile nav default (hidden on desktop) */
+.mobile-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* make page scrollable on mobile */
+    body {
+        height: auto;
+        overflow: auto;
+    }
+    /* stack sidebar and main content vertically and control order */
+    .container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+        height: auto;
+        overflow: visible;
+    }
+    /* show mobile nav and make it sticky at the top */
+    .mobile-nav {
+        display: block !important;
+        order: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        box-sizing: border-box;
+        padding: 12px 8px;
+        background: #0D1117;
+        border-bottom: 1px solid #333333;
+        z-index: 10000;
+        height: 56px;
+    }
+    .mobile-logo {
+        font-size: 18px;
+        margin: 0;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+    /* hide the desktop logo header on small screens to avoid duplicate navs */
+    .main-content .logo {
+        display: none;
+    }
+    .sidebar {
+        order: 1;
+        width: 100%;
+        padding: 8px 8px 24px 8px;
+        border-left: none;
+        border-bottom: none;
+        height: auto;
+        overflow: visible;
+        background: transparent;
+    }
+    /* create a small gap between nav separator and about section */
+    .about {
+        margin-top: 12px;
+    }
+    .main-content {
+        order: 2;
+        width: 100%;
+        padding: 0;
+        min-width: 0;
+    }
+    /* push content down so fixed nav doesn't cover it */
+    .container {
+        padding-top: 72px;
+    }
+    /* let whole page scroll; disable inner scrolling on cards-wrapper */
+    .cards-wrapper {
+        overflow-y: visible;
+        max-height: none;
+        padding-bottom: 24px;
+    }
+}
+
 /* LEFT CONTENT */
 
 .main-content {
@@ -84,6 +162,9 @@ body {
     background: #0D1117;
     transition: 0.2s ease;
     cursor: pointer;
+    position: relative; /* allow absolutely positioned avatar */
+    /* desktop: reserve space on the left for avatar */
+    padding-left: 84px;
 }
 
 .card:hover {
@@ -92,8 +173,9 @@ body {
 
 .card-header {
     display: flex;
-    gap: 16px;
-    align-items: flex-start;
+    gap: 12px;
+    align-items: flex-start; /* place avatar at top-left and title to its right */
+    flex-wrap: nowrap; /* keep avatar and title on the same row */
 }
 
 .owner-avatar {
@@ -102,16 +184,51 @@ body {
     border-radius: 50%;
     flex-shrink: 0;
     border: 2px solid #30363d;
+    position: absolute; /* desktop: top-left by default */
+    left: 16px;
+    top: 16px;
+    background-size: cover;
+}
+
+/* ensure repository/meta info doesn't get overlapped by avatar on desktop */
+.card .meta {
+    padding-left: 8px; /* small inner spacing; left padding offsets from avatar */
+}
+
+@media (max-width: 768px) {
+    /* mobile: avatar moves to bottom-right; adjust card padding to reserve space */
+    .card {
+        padding-left: 20px; /* remove large left padding on mobile */
+        padding-right: 84px; /* reserve space on right for avatar */
+        padding-bottom: 72px; /* reserve space at bottom for avatar */
+    }
+    .owner-avatar {
+        width: 40px;
+        height: 40px;
+        left: auto;
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        border-width: 1px;
+    }
+    .card .meta {
+        padding-left: 0;
+        padding-right: 72px;
+    }
 }
 
 .card-content {
     flex: 1;
+    min-width: 0; /* allow flex children to shrink and enable text-overflow */
 }
 
 .card h3 {
     color: #ffffff;
-    margin-bottom: 8px;
+    margin: 0;
     font-size: 18px;
+    white-space: nowrap; /* prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* show ellipsis when too long */
 }
 
 .card h3 a {
@@ -130,12 +247,13 @@ body {
 .card p {
     font-size: 14px;
     color: #8b949e;
-    margin-bottom: 10px;
+    margin-bottom: 24px; /* slightly larger gap before meta/info */
 }
 
 .meta {
     font-size: 13px;
     color: #8b949e;
+    margin-top: 6px; /* small spacing from description */
 }
 
 .meta span {
@@ -398,4 +516,126 @@ body {
 @keyframes skeleton-shimmer {
     0% { left: -120px; }
     100% { left: 100%; }
+}
+/* =========================================
+   MOBILE RESPONSIVENESS
+   Mimics goodfirstissue.dev behavior
+========================================= */
+
+@media (max-width: 900px) {
+
+    /* Allow page scrolling */
+    body {
+        height: auto;
+        overflow: auto;
+    }
+
+    .container {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+        gap: 0;
+        padding: 0 20px;
+        margin: 0 auto;
+    }
+
+    /* -------------------------
+       NAV / HEADER
+    ------------------------- */
+
+    .logo {
+        font-size: 24px;
+        margin-top: 20px;
+        margin-bottom: 0;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #333333;
+    }
+
+    /* -------------------------
+       SIDEBAR → TOP SECTION
+    ------------------------- */
+
+    .sidebar {
+        order: -1; /* moves above cards */
+        border-left: none; /* remove vertical separator */
+        padding-left: 0;
+        height: auto;
+        overflow: visible;
+        margin-top: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #333333; /* separator under ABOUT */
+    }
+
+    /* ABOUT now feels like page intro */
+    .about {
+        margin-bottom: 20px;
+    }
+
+    /* ADD PROJECT button full width on mobile */
+    .add-project {
+        width: 100%;
+    }
+
+    /* -------------------------
+       MAIN CONTENT
+    ------------------------- */
+
+    .main-content {
+        overflow: visible;
+    }
+
+    .cards-wrapper {
+        overflow: visible;
+        padding-right: 0;
+        padding-top: 20px;
+    }
+
+    /* -------------------------
+       CARDS MOBILE LAYOUT
+    ------------------------- */
+
+    .card {
+        padding: 16px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .owner-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .card h3 {
+        font-size: 16px;
+    }
+
+    .meta span {
+        margin-left: 10px;
+    }
+
+    /* -------------------------
+       TAGS WRAP NICELY
+    ------------------------- */
+
+    .tags {
+        gap: 8px;
+    }
+
+    .tags span {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    /* -------------------------
+       MODAL MOBILE
+    ------------------------- */
+
+    .modal {
+        width: 95%;
+        padding: 18px;
+    }
+
 }
