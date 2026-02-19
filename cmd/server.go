@@ -53,10 +53,6 @@ func main() {
 	// Setup routes
 	mux := http.NewServeMux()
 
-	// Serve static files from web directory
-	fs := http.FileServer(http.Dir("./web"))
-	mux.Handle("/", fs)
-
 	// API endpoints
 	mux.HandleFunc("/api/projects", enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		// OPTIONS is already handled by CORS middleware
