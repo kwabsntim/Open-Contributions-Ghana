@@ -137,7 +137,16 @@ function displayError() {
 }
 
 // Load projects when page loads
-document.addEventListener('DOMContentLoaded', loadProjects);
+document.addEventListener('DOMContentLoaded', () => {
+    // Clear the GitHub URL input on page load so the modal starts empty
+    try {
+        const input = document.getElementById('githubUrlInput');
+        if (input) input.value = '';
+    } catch (e) {
+        console.warn('Could not clear githubUrlInput on load', e);
+    }
+    loadProjects();
+});
 
 // Modal functionality
 const modal = document.getElementById('addProjectModal');

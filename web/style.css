@@ -188,6 +188,8 @@ body {
     left: 16px;
     top: 16px;
     background-size: cover;
+    display: block;
+    object-fit: cover;
 }
 
 /* ensure repository/meta info doesn't get overlapped by avatar on desktop */
