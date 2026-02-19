@@ -218,15 +218,16 @@ urlInput.addEventListener('input', async () => {
         
         const repoData = await response.json();
         
-        // Store previewed project
+        // Store previewed project (we only need github_url for submission)
         previewedProject = {
             github_url: url
         };
-        
-        // Show preview
+
+        // Show preview (include owner avatar so the preview image loads)
         modalPreview.innerHTML = createProjectCard({
             name: repoData.name,
             owner_name: repoData.owner.login,
+            owner_avatar: repoData.owner.avatar_url,
             description: repoData.description,
             language: repoData.language,
             stars: repoData.stargazers_count,
@@ -262,18 +263,19 @@ submitBtn.addEventListener('click', async () => {
             },
             body: JSON.stringify(previewedProject)
         });
-        
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const text = await response.text().catch(() => null);
+            throw new Error(text || `HTTP error! status: ${response.status}`);
         }
-        
+
         // Success - close modal and reload projects
         closeModal();
         await loadProjects();
-        
+
     } catch (error) {
         console.error('Error adding project:', error);
-        modalError.textContent = 'Failed to add project. Please try again.';
+        modalError.textContent = 'Failed to add project: ' + (error.message || error);
         modalError.classList.add('show');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Add Project';
